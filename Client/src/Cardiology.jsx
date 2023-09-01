@@ -1,7 +1,8 @@
-import React, {useState} from "react";
+import React, {useState, useContext} from "react";
 import { Calendar } from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import Timepicker from "react-time-picker"
+import Timepicker from "react-time-picker";
+import ServiceContext from "./ContextObject";
 import 'react-time-picker/dist/TimePicker.css';
 import 'react-clock/dist/Clock.css';
 import "./Dermatology.css"
@@ -10,6 +11,7 @@ function Cardiology () {
     const [value, setValue] = useState(new Date());
     const [calendarData, setCalendarData] = useState(false);
     const [time, setTime] = useState("10:00");
+    const { setServieSelected, setDoctorSelected } = useContext(ServiceContext);
     const offDays = {
       sunday: value.getDay() === 0,
       monday: value.getDay() === 1,
@@ -29,6 +31,10 @@ function Cardiology () {
       jhonOnFriday: value.getDay() === 5 && time >= "09:00" && time <= "14:00",
       rizwanOnFriday: value.getDay() === 5 && time >= "13:00" && time <= "18:00"
     }
+    /*const paymentData = {
+      service: serviceSelected,
+      doctor: doctorSelected
+    }*/
     function handleOnChange(nextValue) {
       setValue(nextValue);
     }
@@ -37,11 +43,17 @@ function Cardiology () {
 
     function handleOnClick () {
       setCalendarData(prevCalendarData => !prevCalendarData);
+      setServieSelected("Cardiology")
     }
-
     
+    function handleChange (e) {
+       const doctor = e.target.value;
+       setDoctorSelected(doctor)
+    }
+   
 
    return (
+    
     <div>
       <button type="button" onClick={handleOnClick}>Cardiology</button>
       {calendarData && 
@@ -50,7 +62,8 @@ function Cardiology () {
           <Calendar onChange={handleOnChange} value={value} tileDisabled={disableWeekend} />
           <Timepicker onChange={setTime} value={time}  minTime="09:00:00" maxTime="18:00:00" />
           <label htmlFor="cardiology">Please select a doctor:</label>
-          <select id="cardiology" name="doctor" >
+          <select id="cardiology" name="doctor" onChange={handleChange}>
+          <option>Please select a doctor</option>
           {(!offDays.sunday && !offDays.thursday) && ( offTime.jhonOnMonday || offTime.jhonOnTuesday || offTime.jhonOnWednesday || offTime.jhonOnFriday) ? <option value="Dr jhon">Dr Jhon</option> : null}
           {(!offDays.monday)  && (offTime.rizwanOnTuesday || offTime.rizwanOnWednesday || offTime.rizwanOnThursday || offTime.rizwanOnFriday) ? <option value="Dr Rizwan">Dr Rizwan</option> : null}
           </select>
@@ -61,6 +74,7 @@ function Cardiology () {
         </>
       }
     </div>
+    
    ) 
 }
 

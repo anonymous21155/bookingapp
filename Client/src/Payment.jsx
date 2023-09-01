@@ -1,9 +1,10 @@
-import React, {useState} from "react";
+import React, {useState, useContext} from "react";
 import Cards from 'react-credit-cards-2';
 import 'react-credit-cards-2/dist/es/styles-compiled.css';
 
 
-function Payment () {
+
+function Payment ({ propObject }) {
   const [paymentDetails, setPaymentDetails] = useState({
     number: '',
     expiry: '',
@@ -11,38 +12,13 @@ function Payment () {
     name: '',
     focus: '',
   });
-  /*const razorpay = new Razorpay({
-    key: 'rzp_test_euDS0x6iBgKyk',
-      // logo, displayed in the payment processing popup
-    image: 'https://i.imgur.com/n5tjHFD.jpg',
-  });
-  const cardElement = document.querySelector('#card');
-  cardElement.addEventListener('click', async function () {
-    try {
-    const response =  await fetch('http://localhost:1337/razorpay', { method: 'POST' }).then((t) =>
-			t.json()
-		)
-    const data = await response.json();
-    const options = {
-      key: "rzp_test_euDS0x6iBgKyk5",
-      currency: data.currency,
-      order_id: data.id,
-      amount: data.amount.toString(),
-      name: 'contoso',
-      prefill: {
-				name: 'testuser',
-				email: 'sdfdsjfh2@ndsfdf.com'
-				
-			},
-      }
-    razorpay.createPayment(options);
-    } catch {
-      console.error('Error handling click:', error);
-    }
-  })*/
+  const { email } = propObject;
+  console.log(email)
+  
 
   const handleOnChange =  (e) => {
     const {name, value} = e.target;
+
     setPaymentDetails((prev) => ({
         ...prev,
         [name]: value
@@ -53,8 +29,8 @@ function Payment () {
     setPaymentDetails((prev) => ({ ...prev, focus: evt.target.name }));
   }
 
-  async function handleOnClick  ()  {
-    const data = await fetch('http://localhost:1337/razorpay', { method: 'POST' }).then((t) =>
+  async function handleOnClick  (e)  {
+    const data = await fetch('http://localhost:1337/razorpay', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(propObject)}).then((t) =>
 			t.json()
 		)
     const razorpay = new Razorpay({
@@ -62,19 +38,32 @@ function Payment () {
         // logo, displayed in the payment processing popup
       image: 'https://i.imgur.com/n5tjHFD.jpg',
     });
-    const options = {
+    const expiryData = paymentDetails.expiry;
+    const [expiryMonth, expiryYear] = expiryData.split('/');
+    e.preventDefault();
+    Object.assign(data, {
       key: "rzp_test_euDS0x6iBgKyk5",
       currency: data.currency,
       order_id: data.id,
       amount: data.amount.toString(),
       name: 'contoso',
-      prefill: {
-				name: 'testuser',
-				email: 'sdfdsjfh2@ndsfdf.com'
-				
-			},
-      }
-    razorpay.createPayment(data);
+      method: 'card',
+      'card[name]': paymentDetails.name,
+      'card[number]': paymentDetails.number,
+      'card[cvv]': paymentDetails.cvc,
+      'card[expiry_month]': expiryMonth,
+      'card[expiry_year]': expiryYear,
+      email: email,
+      contact: '9123456780'
+    })
+    
+    const rzpay = razorpay.createPayment(data);
+    rzpay.on('payment.success', function(resp) {
+      alert(resp.razorpay_payment_id),
+      alert(resp.razorpay_order_id),
+      alert(resp.razorpay_signature)});
+    rzpay.on('payment.error', function(resp){
+      alert(resp.error.description)});
     
   }
   

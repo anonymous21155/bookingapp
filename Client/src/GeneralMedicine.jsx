@@ -1,7 +1,8 @@
-import React, {useState} from "react";
+import React, {useState, useContext} from "react";
 import { Calendar } from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import Timepicker from "react-time-picker"
+import ServiceContext from "./ContextObject";
 import 'react-time-picker/dist/TimePicker.css';
 import 'react-clock/dist/Clock.css';
 import "./Dermatology.css";
@@ -12,6 +13,12 @@ function GeneralMedicine () {
     const [time, setTime] = useState("10:00");
     const [alvaroSelected, setAalvaroSelected] = useState(false);
     const [hennahSelected, setHennahSelected] = useState(false);
+    const { setServieSelected, setDoctorSelected } = useContext(ServiceContext);
+    
+    /*const paymentData = {
+      service: serviceSelected,
+      doctor: doctorSelected
+    }*/
     const offDays = {
       sunday: value.getDay() === 0,
       monday: value.getDay() === 1,
@@ -28,10 +35,12 @@ function GeneralMedicine () {
     
     function handleOnClick () {
       setCalendarData(prevCalendarData => !prevCalendarData);
+      setServieSelected('GeneralMedicine');
     }
     
     function handleDrFees (e) {
       const doctor = e.target.value;
+      setDoctorSelected(doctor);
       if (doctor === "Dr Alvaro") {
         setAalvaroSelected(true);
       } else {
@@ -43,9 +52,10 @@ function GeneralMedicine () {
         setHennahSelected(false);
       }
     }
-
+    
     return (
-        <div>
+      
+         <div>
            <button type="button" onClick={handleOnClick}>General Medicine</button>
       {calendarData && 
         <form>
@@ -53,6 +63,7 @@ function GeneralMedicine () {
         <Timepicker onChange={setTime} value={time}  maxTime="18:00:00" minTime="09:00:00"/>
           <label htmlFor="GM">Please select a doctor:</label>
           <select id="GM" name="Doctor" onChange={handleDrFees}>
+            <option>Please select a doctor</option>
             {!offDays.sunday && !offDays.thursday && <option>Dr Jhon</option>} 
             <option>Dr Smith</option>
             {!offDays.saturday && !offDays.saturday && <option>Dr Hennah</option>}
@@ -68,6 +79,8 @@ function GeneralMedicine () {
         
       } 
         </div>
+      
+        
     )
 }
 

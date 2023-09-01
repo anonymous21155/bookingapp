@@ -1,7 +1,8 @@
-import React, {useState} from "react";
+import React, {useState, useContext} from "react";
 import { Calendar } from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import Timepicker from "react-time-picker"
+import ServiceContext from "./ContextObject";
 import 'react-time-picker/dist/TimePicker.css';
 import 'react-clock/dist/Clock.css';
 import "./Dermatology.css";
@@ -10,6 +11,11 @@ function Dermatology () {
     const [value, setValue] = useState(new Date());
     const [calendarData, setCalendarData] = useState(false);
     const [time, setTime] = useState("10:00");
+    const { setServieSelected, setDoctorSelected } = useContext(ServiceContext);
+    /*const paymentData = {
+      service: serviceSelected,
+      doctor: doctorSelected
+    }*/
     const offDays = {
         sunday: value.getDay() === 0,
         monday: value.getDay() === 1,
@@ -28,9 +34,12 @@ function Dermatology () {
     
     function handleOnClick () {
         setCalendarData(prevCalendarData => !prevCalendarData); 
+        setServieSelected('Dermatology')
+        setDoctorSelected('Dr Angela')
     }
-
+    
     return (
+      
         <div>
           <button type="button" onClick={handleOnClick}>Dermatology</button>
       {calendarData && 
@@ -40,6 +49,7 @@ function Dermatology () {
         {offDays.friday && <Timepicker onChange={setTime} value={time}  minTime="09:00:00" maxTime="12:30:00" />} 
         <label htmlFor="dermatology">Please select a doctor:</label>
         <select id="dermatology" name="doctor">
+        <option>Please select a doctor</option>
         <option>Dr Angela</option>
         </select>
         <label htmlFor="amount">Amount to pay:</label>
@@ -48,6 +58,7 @@ function Dermatology () {
         </form>
       } 
         </div>
+          
     )
 }
 
