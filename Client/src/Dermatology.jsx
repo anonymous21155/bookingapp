@@ -12,10 +12,7 @@ function Dermatology () {
     const [calendarData, setCalendarData] = useState(false);
     const [time, setTime] = useState("10:00");
     const { setServieSelected, setDoctorSelected } = useContext(ServiceContext);
-    /*const paymentData = {
-      service: serviceSelected,
-      doctor: doctorSelected
-    }*/
+    
     const offDays = {
         sunday: value.getDay() === 0,
         monday: value.getDay() === 1,
@@ -25,7 +22,10 @@ function Dermatology () {
         friday: value.getDay() === 5,
         saturday: value.getDay() === 6
       }
-
+    const serverData = {
+      time: time,
+      date: value
+    }
     function handleOnChange(nextValue) {
         setValue(nextValue);
     }
@@ -37,7 +37,9 @@ function Dermatology () {
         setServieSelected('Dermatology')
         setDoctorSelected('Dr Angela')
     }
-    
+    function handleServerData () {
+      fetch('http://localhost:1337/bookings', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(serverData)})
+    }
     return (
       
         <div>
@@ -48,7 +50,7 @@ function Dermatology () {
         {offDays.wednesday && <Timepicker onChange={setTime} value={time}  minTime="14:00:00" maxTime="18:00:00" />}
         {offDays.friday && <Timepicker onChange={setTime} value={time}  minTime="09:00:00" maxTime="12:30:00" />} 
         <label htmlFor="dermatology">Please select a doctor:</label>
-        <select id="dermatology" name="doctor">
+        <select id="dermatology" name="doctor" onChange={handleServerData}>
         <option>Please select a doctor</option>
         <option>Dr Angela</option>
         </select>

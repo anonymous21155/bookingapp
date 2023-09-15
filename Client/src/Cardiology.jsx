@@ -31,10 +31,10 @@ function Cardiology () {
       jhonOnFriday: value.getDay() === 5 && time >= "09:00" && time <= "14:00",
       rizwanOnFriday: value.getDay() === 5 && time >= "13:00" && time <= "18:00"
     }
-    /*const paymentData = {
-      service: serviceSelected,
-      doctor: doctorSelected
-    }*/
+    const serverData = {
+      time: time,
+      date: value
+    }
     function handleOnChange(nextValue) {
       setValue(nextValue);
     }
@@ -49,6 +49,7 @@ function Cardiology () {
     function handleChange (e) {
        const doctor = e.target.value;
        setDoctorSelected(doctor)
+       fetch('http://localhost:1337/bookings', {method: 'POST', headers: { 'Content-Type': 'application/json'}, body: JSON.stringify(serverData)})
     }
    
 

@@ -15,10 +15,10 @@ function GeneralMedicine () {
     const [hennahSelected, setHennahSelected] = useState(false);
     const { setServieSelected, setDoctorSelected } = useContext(ServiceContext);
     
-    /*const paymentData = {
-      service: serviceSelected,
-      doctor: doctorSelected
-    }*/
+    const serverData = {
+      time: time,
+      date: value
+    }
     const offDays = {
       sunday: value.getDay() === 0,
       monday: value.getDay() === 1,
@@ -41,6 +41,8 @@ function GeneralMedicine () {
     function handleDrFees (e) {
       const doctor = e.target.value;
       setDoctorSelected(doctor);
+      console.log(serverData)
+      fetch('http://localhost:1337/bookings', { method: 'POST', headers: { 'Content-Type': 'application/json'}, body: JSON.stringify(serverData) })
       if (doctor === "Dr Alvaro") {
         setAalvaroSelected(true);
       } else {

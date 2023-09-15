@@ -1,6 +1,8 @@
 import bodyParser from 'body-parser';
 import express from 'express';
 import Razorpay from 'razorpay';
+import { createBooking, bookingRouter } from './booking.mjs';
+import { availabilityRouter } from './availability.mjs';
 import cors from 'cors';
 
 const app = express();
@@ -10,8 +12,9 @@ const razorpay = new Razorpay({
     key_id: 'rzp_test_euDS0x6iBgKyk5',
     key_secret: 'gULH7BA4ZbyySRhnTpuDeXxo',
   });
+app.use('/bookings', bookingRouter);
+app.use('/availability', availabilityRouter);
 app.post('/razorpay', async (req, res) => {
-  console.log(req.body)
   let amount = "";
   if (req.body.service === "GeneralMedicine" && req.body.doctor === "Dr Smith" || req.body.doctor === "Dr Jhon" || req.body.doctor === "Dr Hari") {
      amount = 50000;
@@ -32,6 +35,9 @@ app.post('/razorpay', async (req, res) => {
   const response = await razorpay.orders.create(options);
   
   console.log(response);
+   if (response) {
+    createBooking(req.body);
+  }
   res.json({
     id: response.id,
     currency: response.currency,
