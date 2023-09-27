@@ -1,4 +1,4 @@
-import React, {useState, useContext} from "react";
+import React, {useState, useContext, useMemo} from "react";
 import { Calendar } from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import Timepicker from "react-time-picker"
@@ -13,12 +13,17 @@ function GeneralMedicine () {
     const [time, setTime] = useState("10:00");
     const [alvaroSelected, setAalvaroSelected] = useState(false);
     const [hennahSelected, setHennahSelected] = useState(false);
+    const [availability, setAvailability] = useState(true);
     const { setServieSelected, setDoctorSelected } = useContext(ServiceContext);
     
+    
     const serverData = {
-      time: time,
+      time: time.toString(),
       date: value
     }
+    
+    
+    
     const offDays = {
       sunday: value.getDay() === 0,
       monday: value.getDay() === 1,
@@ -29,6 +34,7 @@ function GeneralMedicine () {
       saturday: value.getDay() === 6
     }
 
+
     function handleOnChange(nextValue) {
       setValue(nextValue);
     }
@@ -36,13 +42,24 @@ function GeneralMedicine () {
     function handleOnClick () {
       setCalendarData(prevCalendarData => !prevCalendarData);
       setServieSelected('GeneralMedicine');
+      console.log(setServieSelected);
+      fetch('http://localhost:1337/service', { method: 'POST', headers: { 'Content-Type': 'application/json'}, body: JSON.stringify({ Service: 'GeneralMedicine' })})
+    }
+
+   async function handleChangeOnTime (newTime) {
+      setTime(newTime);
+      await fetch('http://localhost:1337/bookings', { method: 'POST', headers: { 'Content-Type': 'application/json'}, body: JSON.stringify(serverData) })
+      const response =  await fetch('http://localhost:1337/availability', { method: 'GET', headers: { 'Content-Type': 'application/json'}}).then((res) => res.json())
+      if (response.isInRange === true) {
+         setAvailability(false);
+      }
     }
     
     function handleDrFees (e) {
       const doctor = e.target.value;
       setDoctorSelected(doctor);
-      console.log(serverData)
-      fetch('http://localhost:1337/bookings', { method: 'POST', headers: { 'Content-Type': 'application/json'}, body: JSON.stringify(serverData) })
+      
+      
       if (doctor === "Dr Alvaro") {
         setAalvaroSelected(true);
       } else {
@@ -55,19 +72,21 @@ function GeneralMedicine () {
       }
     }
     
+    const serverTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      console.log(`Server Timezone: ${serverTimezone}`);
     return (
       
          <div>
            <button type="button" onClick={handleOnClick}>General Medicine</button>
       {calendarData && 
         <form>
-        <Calendar onChange={handleOnChange} value={value} />
-        <Timepicker onChange={setTime} value={time}  maxTime="18:00:00" minTime="09:00:00"/>
+        <Calendar onChange={handleOnChange} value={value}  minDate={new Date()}/>
+        <Timepicker onChange={handleChangeOnTime} value={time} minTime="09:00:00" maxTime="17:00:00" />
           <label htmlFor="GM">Please select a doctor:</label>
           <select id="GM" name="Doctor" onChange={handleDrFees}>
             <option>Please select a doctor</option>
             {!offDays.sunday && !offDays.thursday && <option>Dr Jhon</option>} 
-            <option>Dr Smith</option>
+            {availability && <option>Dr Smith</option>}
             {!offDays.saturday && !offDays.saturday && <option>Dr Hennah</option>}
             {!offDays.tuesday && <option>Dr Alvaro</option>}
             {!offDays.friday && <option>Dr Hari</option>}
