@@ -2,7 +2,7 @@ import bodyParser from 'body-parser';
 import express from 'express';
 import Razorpay from 'razorpay';
 import { createBooking, bookingRouter } from './booking.mjs';
-import { availabilityRouter } from './availability.mjs';
+import { availabilityRouter, serviceRouter } from './availability.mjs';
 import cors from 'cors';
 
 const app = express();
@@ -12,6 +12,7 @@ const razorpay = new Razorpay({
     key_id: 'rzp_test_euDS0x6iBgKyk5',
     key_secret: 'gULH7BA4ZbyySRhnTpuDeXxo',
   });
+app.use('/service', serviceRouter);
 app.use('/bookings', bookingRouter);
 app.use('/availability', availabilityRouter);
 app.post('/razorpay', async (req, res) => {

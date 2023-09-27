@@ -4,15 +4,16 @@ import express from 'express';
 import { ClientSecretCredential } from '@azure/identity';
 import { Client } from '@microsoft/microsoft-graph-client';
 import { TokenCredentialAuthenticationProvider } from '@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials/index.js';
+import { availabilityStatus } from './availability.mjs';
 
 let clientSecretCredential;
 let appGraphClient;
-let startNewHour; 
+
 let formattedEndTime;
 let formattedStartTime;
-let formattedStartTimeInUTC;
+
 let finalFormattedEndTime;
-let finalFormattedStartTime;
+
 dotenv.config();
 const bookingRouter = express.Router();
 function initializeGraphForAppOnlyAuth () {
@@ -33,21 +34,30 @@ function initializeGraphForAppOnlyAuth () {
         appGraphClient = Client.initWithMiddleware({
           authProvider: authProvider
         });
-      }
+      } 
     }
     bookingRouter.post('/', (req, res) => {
       const { date, time } = req.body;
       
-      const splittedDate = date.split('T');
-      const formattedDate = splittedDate[0];
+      
+      const newDate = new Date(date);
+      const finalDate = newDate.toLocaleDateString();
+      const formattedDate = finalDate.replace(/\//g, '-');
+      const parts = formattedDate.split('-');
+      const finalFormattedDate = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+      
+      console.log(`bookingdata: ${newDate}, ${finalFormattedDate},  ${time}`);
+      
       const [splittedHour, splittedMinute] = time.split(':');
-      const hour = parseInt(splittedHour);
+      let hour = parseInt(splittedHour);
       const minute = parseInt(splittedMinute);
+      
       
        
       const formattedMinute = minute+ 30;
       let newHour;
       let extraMinutes;
+      
       if (formattedMinute >= 60) {
         extraMinutes = formattedMinute % 60;
         const extraHours = Math.floor(formattedMinute / 60);
@@ -59,9 +69,10 @@ function initializeGraphForAppOnlyAuth () {
       
     
       const formattedTime = `${newHour.toString().padStart(2, '0')}:${extraMinutes.toString().padStart(2, '0')}`;
-       formattedStartTime = formattedDate + 'T' + time + ':00.0000000+05:30';
-       formattedEndTime = formattedDate + 'T' + formattedTime + ':00.0000000+05:30';
-      console.log();
+       formattedStartTime = finalFormattedDate + 'T' + time + ':00.0000000+05:30';
+       formattedEndTime = finalFormattedDate + 'T' + formattedTime + ':00.0000000+05:30';
+       console.log( formattedStartTime, formattedEndTime);
+       availabilityStatus(formattedStartTime, formattedEndTime);
     });
       
 
@@ -89,7 +100,7 @@ function initializeGraphForAppOnlyAuth () {
             customerTimeZone: 'UTC',
             endDateTime: {
                 '@odata.type': '#microsoft.graph.dateTimeTimeZone',
-                dateTime: formattedEndTime,
+                dateTime: formattedStartTime,
                 timeZone: 'UTC'
             },
             isLocationOnline: true,
