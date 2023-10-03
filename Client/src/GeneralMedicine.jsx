@@ -13,7 +13,11 @@ function GeneralMedicine () {
     const [time, setTime] = useState("10:00");
     const [alvaroSelected, setAalvaroSelected] = useState(false);
     const [hennahSelected, setHennahSelected] = useState(false);
-    const [availability, setAvailability] = useState(true);
+    const [availability, setAvailability] = useState({
+      jhonAvailability: true,
+      hariAvailability: true,
+      smithAvailability: true
+    });
     const { setServieSelected, setDoctorSelected } = useContext(ServiceContext);
     
     
@@ -50,8 +54,24 @@ function GeneralMedicine () {
       setTime(newTime);
       await fetch('http://localhost:1337/bookings', { method: 'POST', headers: { 'Content-Type': 'application/json'}, body: JSON.stringify(serverData) })
       const response =  await fetch('http://localhost:1337/availability', { method: 'GET', headers: { 'Content-Type': 'application/json'}}).then((res) => res.json())
-      if (response.isInRange === true) {
-         setAvailability(false);
+      if (response.jhonStatus === true) {
+        const updatedAvailability = {
+          ...availability,
+          jhonAvailability: false
+        }
+         setAvailability(updatedAvailability);
+      } else if (response.smithStatus === true) {
+        const updatedAvailability = {
+          ...availability,
+          smithAvailability: false
+        }
+        setAvailability(updatedAvailability);
+      } else if (response.hariStatus === true) {
+        const updatedAvailability = {
+          ...availability,
+          hariAvailability: false
+        }
+        setAvailability(updatedAvailability);
       }
     }
     
@@ -85,11 +105,11 @@ function GeneralMedicine () {
           <label htmlFor="GM">Please select a doctor:</label>
           <select id="GM" name="Doctor" onChange={handleDrFees}>
             <option>Please select a doctor</option>
-            {!offDays.sunday && !offDays.thursday && <option>Dr Jhon</option>} 
-            {availability && <option>Dr Smith</option>}
+            {!offDays.sunday && !offDays.thursday && availability.jhonAvailability && <option>Dr Jhon</option>} 
+            {availability.smithAvailability && <option>Dr Smith</option>}
             {!offDays.saturday && !offDays.saturday && <option>Dr Hennah</option>}
             {!offDays.tuesday && <option>Dr Alvaro</option>}
-            {!offDays.friday && <option>Dr Hari</option>}
+            {!offDays.friday && availability.hariAvailability && <option>Dr Hari</option>}
           </select>
           <label htmlFor="amount">Amount to pay:</label>
           {(!alvaroSelected && !hennahSelected) && <input type="number" id="amount" name="amount" value="200" className="no-box"/>}

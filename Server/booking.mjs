@@ -100,7 +100,7 @@ function initializeGraphForAppOnlyAuth () {
             customerTimeZone: 'UTC',
             endDateTime: {
                 '@odata.type': '#microsoft.graph.dateTimeTimeZone',
-                dateTime: formattedStartTime,
+                dateTime: formattedEndTime,
                 timeZone: 'UTC'
             },
             isLocationOnline: true,

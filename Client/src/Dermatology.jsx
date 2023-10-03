@@ -45,7 +45,7 @@ function Dermatology () {
       console.log(time);
       await fetch('http://localhost:1337/bookings', { method: 'POST', headers: { 'Content-Type': 'application/json'}, body: JSON.stringify(serverData) })
       const response =  await fetch('http://localhost:1337/availability', { method: 'GET', headers: { 'Content-Type': 'application/json'}}).then((res) => res.json())
-      if (response.isInRange === true) {
+      if (response.angelaStatus === true) {
         setAvailability(false);
      }
     }

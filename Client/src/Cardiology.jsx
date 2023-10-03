@@ -11,7 +11,10 @@ function Cardiology () {
     const [value, setValue] = useState(new Date());
     const [calendarData, setCalendarData] = useState(false);
     const [time, setTime] = useState("10:00");
-    const [availability, setAvailability] = useState(true);
+    const [availability, setAvailability] = useState({
+      jhonAvailability: true,
+      rizwanAvailability: true
+    });
     const { setServieSelected, setDoctorSelected } = useContext(ServiceContext);
     
     
@@ -63,14 +66,22 @@ function Cardiology () {
        fetch('http://localhost:1337/bookings', { method: 'POST', headers: { 'Content-Type': 'application/json'}, body: JSON.stringify(serverData) })
       
       const response =  await fetch('http://localhost:1337/availability', { method: 'GET', headers: { 'Content-Type': 'application/json'}}).then((res) => res.json());
-      console.log(`tt: ${response.range} `);
+      console.log(`tt: ${response.jhonStatus}, ${response.rizwanStatus} `);
       console.log(availability);
-      if (response.range === true) {
-        
-        setAvailability(false);
-     } else {
-        setAvailability(true);
-     }
+      if (response.jhonStatus === true) {
+        const updatedAvailability = {
+          ...availability,
+          jhonAvailability: false
+        }
+        setAvailability(updatedAvailability);
+     } 
+     if (response.rizwanStatus === true) {
+      const updatedAvailability = {
+        ...availability,
+        rizwanAvailability: false
+      }
+        setAvailability(updatedAvailability);
+     } 
      
     }
     
@@ -87,8 +98,8 @@ function Cardiology () {
           <label htmlFor="cardiology">Please select a doctor:</label>
           <select id="cardiology" name="doctor" onChange={handleChange}>
           <option>Please select a doctor</option>
-          {(!offDays.sunday && !offDays.thursday) && ( offTime.jhonOnMonday || offTime.jhonOnTuesday || offTime.jhonOnWednesday || offTime.jhonOnFriday) && availability ? <option value="Dr jhon">Dr Jhon</option> : null}
-          {(!offDays.monday)  && (offTime.rizwanOnTuesday || offTime.rizwanOnWednesday || offTime.rizwanOnThursday || offTime.rizwanOnFriday) ? <option value="Dr Rizwan">Dr Rizwan</option> : null}
+          {(!offDays.sunday && !offDays.thursday) && ( offTime.jhonOnMonday || offTime.jhonOnTuesday || offTime.jhonOnWednesday || offTime.jhonOnFriday) && availability.jhonAvailability ? <option value="Dr jhon">Dr Jhon</option> : null}
+          {(!offDays.monday)  && (offTime.rizwanOnTuesday || offTime.rizwanOnWednesday || offTime.rizwanOnThursday || offTime.rizwanOnFriday) && availability.rizwanAvailability ? <option value="Dr Rizwan">Dr Rizwan</option> : null}
           </select>
         <label htmlFor="amount">Amount to pay:</label>
         <input id="amount" name="amount" value="500" type="number" className="no-box"></input>

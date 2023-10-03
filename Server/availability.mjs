@@ -8,13 +8,17 @@ import { TokenCredentialAuthenticationProvider } from '@microsoft/microsoft-grap
 
 let clientSecretCredential;
 let appGraphClient;
-let eventStartTime;
-let eventEndTime;
-let isInRange = false;
+let eventArray;
+let eventObj;
+let jhonIsInRange = false;
+let rizwanIsInRange = false;
+let hariIsInRange = false;
+let smithIsInRange = false;
+let angelaIsInRange = false;
 dotenv.config();
-const jhonUserId = process.env.GOKUL;
-const angelaUserId = process.env.ATHIRA;
-const smithUserId = process.env.DIVYA;
+const cardiologyArray = [process.env.GOKUL, process.env.GOKUL2];
+const generalMedicineArray = [process.env.GOKUL,process.env.VIMAL,process.env.DIVYA];
+const dermatologyArray = [process.env.ATHIRA];
 let eventData;  
 const availabilityRouter = express.Router();
 const serviceRouter = express.Router()
@@ -43,11 +47,19 @@ function initializeGraphForAppOnlyAuth () {
 serviceRouter.post('/', (req, res) => {
   const  service = req.body.Service;
   if (service === 'Cardiology') {
-    eventData = `/users/${jhonUserId}/events`;
+      eventArray = cardiologyArray.map( (userID) => {
+      return `/users/${userID}/events`;
+      
+    })
+    
    } else if (service === 'GeneralMedicine') {
-    eventData = `/users/${smithUserId}/events`;
+    eventArray = generalMedicineArray.map( (userID) => {
+      return `/users/${userID}/events`;
+    })
    } else {
-    eventData = `/users/${angelaUserId}/events`;
+    eventArray = dermatologyArray.map( (userID) => {
+      return `/users/${userID}/events`;
+    })
    }
 })
  
@@ -60,27 +72,46 @@ async function availabilityStatus (startTime, endTime) {
     const formattedEndTime = endTime.split('.');
     const finalEndTime = formattedEndTime[0];
     console.log(`hee: ${finalStartTime}, ${finalEndTime}`);
-    let events = await appGraphClient.api(eventData)
+    const eventPromises = eventArray.map((eventPath) => {
+      return appGraphClient.api(eventPath)
+      .header('Prefer','outlook.timezone="Asia/Kolkata"')
+      .select('subject,body,bodyPreview,organizer,attendees,start,end,location')
+      .filter(`start/dateTime ge '${finalStartTime}' and end/dateTime le '${finalEndTime}'`)
+      .get();
+    })
+    const events = await Promise.all(eventPromises);
+    /*let events = await appGraphClient.api(eventArray)
     .header('Prefer','outlook.timezone="Asia/Kolkata"')
     .select('subject,body,bodyPreview,organizer,attendees,start,end,location')
     .filter(`start/dateTime ge '${finalStartTime}' and end/dateTime le '${finalEndTime}'`)
-    .get();
-    
-    if (events.value !== undefined && events.value.length > 0) {
-      isInRange = true;
-    } else {
-      isInRange = false;
+    .get();*/
+    console.log(events);
+    for (eventObj of events) {
+      const user = eventObj['@odata.context'].match(/'([^']+)'/)[1];
+      const hasEvents = eventObj['value'].length;
+      if (user === process.env.GOKUL && hasEvents > 0 ) {
+        jhonIsInRange = true;
+      }if (user === process.env.GOKUL2 && hasEvents > 0) {
+        rizwanIsInRange = true;
+      }
+      if (user === process.env.VIMAL && hasEvents > 0) {
+        hariIsInRange = true;
+      }
+      if (user === process.env.DIVYA && hasEvents > 0) {
+        smithIsInRange = true;
+      }
+      if (user === process.env.ATHIRA && hasEvents > 0) {
+        angelaIsInRange = true;
+      }
+      console.log(jhonIsInRange, rizwanIsInRange);
     }
-    
-
-
-    console.log(isInRange);   
-
     
 }
 
+
 availabilityRouter.get('/', (req,res) => {
-     res.json({ range: isInRange })
+     res.json({ jhonStatus: jhonIsInRange, rizwanStatus: rizwanIsInRange, hariStatus: hariIsInRange, smithStatus: smithIsInRange, angelaStatus: angelaIsInRange});
+     
 })
 
 
