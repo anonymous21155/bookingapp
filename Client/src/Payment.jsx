@@ -1,4 +1,4 @@
-import React, {useState, useContext} from "react";
+import React, {useState} from "react";
 import Cards from 'react-credit-cards-2';
 import 'react-credit-cards-2/dist/es/styles-compiled.css';
 
@@ -13,7 +13,7 @@ function Payment ({ propObject }) {
     focus: '',
   });
   const { email } = propObject;
-  console.log(email)
+  console.log(propObject)
   
 
   const handleOnChange =  (e) => {
@@ -65,7 +65,7 @@ function Payment ({ propObject }) {
     rzpay.on('payment.error', function(resp){
       alert(resp.error.description)});
     
-  }
+   }
   
     return (
         <>
@@ -108,7 +108,7 @@ function Payment ({ propObject }) {
           onFocus={handleInputFocus}
         />
         </form>
-      <button id="card" onClick={handleOnClick}>Book</button>
+      <button type="button" onClick={handleOnClick}>Book</button>
         </>
          
     )

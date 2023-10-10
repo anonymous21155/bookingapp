@@ -17,6 +17,7 @@ app.use('/bookings', bookingRouter);
 app.use('/availability', availabilityRouter);
 app.post('/razorpay', async (req, res) => {
   let amount = "";
+  console.log(req.body.service, req.body.doctor)
   if (req.body.service === "GeneralMedicine" && req.body.doctor === "Dr Smith" || req.body.doctor === "Dr Jhon" || req.body.doctor === "Dr Hari") {
      amount = 50000;
   } else if (req.body.service === "GeneralMedicine" && req.body.doctor === "Dr Hennah"){

@@ -1,4 +1,4 @@
-import React, {useState, useContext, useMemo} from "react";
+import React, {useState, useContext, useEffect} from "react";
 import { Calendar } from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import Timepicker from "react-time-picker";
@@ -9,14 +9,35 @@ import "./Dermatology.css"
 
 function Cardiology () {
     const [value, setValue] = useState(new Date());
-    const [calendarData, setCalendarData] = useState(false);
     const [time, setTime] = useState("10:00");
     const [availability, setAvailability] = useState({
       jhonAvailability: true,
       rizwanAvailability: true
     });
-    const { setServieSelected, setDoctorSelected } = useContext(ServiceContext);
-    
+    const setDoctorSelected  = useContext(ServiceContext);
+    useEffect(() => {
+      const fetchData = async () => {
+         await fetch('http://localhost:1337/bookings', { method: 'POST', headers: { 'Content-Type': 'application/json'}, body: JSON.stringify(serverData) })
+        const response = await  fetch('http://localhost:1337/availability', { method: 'GET', headers: { 'Content-Type': 'application/json'}}).then((res) => res.json());
+        console.log(`jj: ${response.jhonStatus}`)
+        if (response.jhonStatus === true) {
+          const updatedAvailability = {
+            ...availability,
+            jhonAvailability: false
+          }
+          setAvailability(updatedAvailability);
+       } 
+       if (response.rizwanStatus === true) {
+        const updatedAvailability = {
+          ...availability,
+          rizwanAvailability: false
+        }
+          setAvailability(updatedAvailability);
+       } 
+      }
+      fetchData();
+      console.log(time, availability.jhonAvailability);
+    },[time]);
     
     
     const offDays = {
@@ -49,52 +70,23 @@ function Cardiology () {
 
     const disableWeekend = ({ date }) => date.getDay() === 0 || date.getDay() === 6;
 
-    function handleOnClick () {
-      setCalendarData(prevCalendarData => !prevCalendarData);
-      setServieSelected("Cardiology")
-      fetch('http://localhost:1337/service', { method: 'POST', headers: { 'Content-Type': 'application/json'}, body: JSON.stringify({ Service: 'Cardiology' })})
-    }
+    
     
     function handleChange (e) {
        const doctor = e.target.value;
        setDoctorSelected(doctor)
        
     }
-    async function handleChangeOnTime (newTime) {
-      setTime(newTime);
-      
-       fetch('http://localhost:1337/bookings', { method: 'POST', headers: { 'Content-Type': 'application/json'}, body: JSON.stringify(serverData) })
-      
-      const response =  await fetch('http://localhost:1337/availability', { method: 'GET', headers: { 'Content-Type': 'application/json'}}).then((res) => res.json());
-      console.log(`tt: ${response.jhonStatus}, ${response.rizwanStatus} `);
-      console.log(availability);
-      if (response.jhonStatus === true) {
-        const updatedAvailability = {
-          ...availability,
-          jhonAvailability: false
-        }
-        setAvailability(updatedAvailability);
-     } 
-     if (response.rizwanStatus === true) {
-      const updatedAvailability = {
-        ...availability,
-        rizwanAvailability: false
-      }
-        setAvailability(updatedAvailability);
-     } 
-     
-    }
     
     
    return (
     
     <div>
-      <button type="button" onClick={handleOnClick}>Cardiology</button>
-      {calendarData && 
+      
         <>
         <form>
           <Calendar onChange={handleOnChange} value={value} tileDisabled={disableWeekend}  minDate={new Date()}/>
-          <Timepicker onChange={handleChangeOnTime} value={time}  minTime="09:00:00" maxTime="17:00:00" />
+          <Timepicker onChange={setTime} value={time}  minTime="09:00:00" maxTime="17:00:00" />
           <label htmlFor="cardiology">Please select a doctor:</label>
           <select id="cardiology" name="doctor" onChange={handleChange}>
           <option>Please select a doctor</option>
@@ -106,7 +98,7 @@ function Cardiology () {
         <span>₹</span>
         </form>
         </>
-      }
+      
     </div>
     
    ) 

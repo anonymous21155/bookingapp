@@ -45,7 +45,7 @@ function initializeGraphForAppOnlyAuth () {
     }
 
 serviceRouter.post('/', (req, res) => {
-  const  service = req.body.Service;
+   const service = req.body.Service;
   if (service === 'Cardiology') {
       eventArray = cardiologyArray.map( (userID) => {
       return `/users/${userID}/events`;
@@ -80,11 +80,6 @@ async function availabilityStatus (startTime, endTime) {
       .get();
     })
     const events = await Promise.all(eventPromises);
-    /*let events = await appGraphClient.api(eventArray)
-    .header('Prefer','outlook.timezone="Asia/Kolkata"')
-    .select('subject,body,bodyPreview,organizer,attendees,start,end,location')
-    .filter(`start/dateTime ge '${finalStartTime}' and end/dateTime le '${finalEndTime}'`)
-    .get();*/
     console.log(events);
     for (eventObj of events) {
       const user = eventObj['@odata.context'].match(/'([^']+)'/)[1];
@@ -103,15 +98,15 @@ async function availabilityStatus (startTime, endTime) {
       if (user === process.env.ATHIRA && hasEvents > 0) {
         angelaIsInRange = true;
       }
-      console.log(jhonIsInRange, rizwanIsInRange);
+      
     }
-    
+    console.log(jhonIsInRange);
 }
 
 
 availabilityRouter.get('/', (req,res) => {
      res.json({ jhonStatus: jhonIsInRange, rizwanStatus: rizwanIsInRange, hariStatus: hariIsInRange, smithStatus: smithIsInRange, angelaStatus: angelaIsInRange});
-     
+     console.log(`hi: ${jhonStatus}`);
 })
 
 

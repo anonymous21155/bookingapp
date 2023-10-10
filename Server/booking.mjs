@@ -94,7 +94,7 @@ function initializeGraphForAppOnlyAuth () {
           serviceID = process.env.DERMATOLOGY_ID;
           staffMemberID = process.env.DR_ANGELA;
         }
-        console.log(serviceID, staffMemberID);
+        
         const bookingAppoinment = {
             '@odata.type': '#microsoft.graph.bookingAppointment',
             customerTimeZone: 'UTC',

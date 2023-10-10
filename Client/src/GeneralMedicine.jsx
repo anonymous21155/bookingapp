@@ -1,4 +1,4 @@
-import React, {useState, useContext, useMemo} from "react";
+import React, {useState, useContext, useEffect} from "react";
 import { Calendar } from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import Timepicker from "react-time-picker"
@@ -9,7 +9,6 @@ import "./Dermatology.css";
 
 function GeneralMedicine () {
     const [value, setValue] = useState(new Date());
-    const [calendarData, setCalendarData] = useState(false);
     const [time, setTime] = useState("10:00");
     const [alvaroSelected, setAalvaroSelected] = useState(false);
     const [hennahSelected, setHennahSelected] = useState(false);
@@ -18,15 +17,41 @@ function GeneralMedicine () {
       hariAvailability: true,
       smithAvailability: true
     });
-    const { setServieSelected, setDoctorSelected } = useContext(ServiceContext);
-    
+    const setDoctorSelected = useContext(ServiceContext);
+    useEffect(() => {
+      const fetchData = async () => {
+        await fetch('http://localhost:1337/bookings', { method: 'POST', headers: { 'Content-Type': 'application/json'}, body: JSON.stringify(serverData) })
+        const response =  await fetch('http://localhost:1337/availability', { method: 'GET', headers: { 'Content-Type': 'application/json'}}).then((res) => res.json())
+        if (response.jhonStatus === true) {
+          const updatedAvailability = {
+            ...availability,
+            jhonAvailability: false
+          }
+           setAvailability(updatedAvailability);
+        } else if (response.smithStatus === true) {
+          const updatedAvailability = {
+            ...availability,
+            smithAvailability: false
+          }
+          setAvailability(updatedAvailability);
+        } else if (response.hariStatus === true) {
+          const updatedAvailability = {
+            ...availability,
+            hariAvailability: false
+          }
+          setAvailability(updatedAvailability);
+        }
+      }
+      fetchData();
+      
+    },[time])
     
     const serverData = {
       time: time.toString(),
       date: value
     }
     
-    
+    console.log(serverData);
     
     const offDays = {
       sunday: value.getDay() === 0,
@@ -43,37 +68,9 @@ function GeneralMedicine () {
       setValue(nextValue);
     }
     
-    function handleOnClick () {
-      setCalendarData(prevCalendarData => !prevCalendarData);
-      setServieSelected('GeneralMedicine');
-      console.log(setServieSelected);
-      fetch('http://localhost:1337/service', { method: 'POST', headers: { 'Content-Type': 'application/json'}, body: JSON.stringify({ Service: 'GeneralMedicine' })})
-    }
+    
 
-   async function handleChangeOnTime (newTime) {
-      setTime(newTime);
-      await fetch('http://localhost:1337/bookings', { method: 'POST', headers: { 'Content-Type': 'application/json'}, body: JSON.stringify(serverData) })
-      const response =  await fetch('http://localhost:1337/availability', { method: 'GET', headers: { 'Content-Type': 'application/json'}}).then((res) => res.json())
-      if (response.jhonStatus === true) {
-        const updatedAvailability = {
-          ...availability,
-          jhonAvailability: false
-        }
-         setAvailability(updatedAvailability);
-      } else if (response.smithStatus === true) {
-        const updatedAvailability = {
-          ...availability,
-          smithAvailability: false
-        }
-        setAvailability(updatedAvailability);
-      } else if (response.hariStatus === true) {
-        const updatedAvailability = {
-          ...availability,
-          hariAvailability: false
-        }
-        setAvailability(updatedAvailability);
-      }
-    }
+   
     
     function handleDrFees (e) {
       const doctor = e.target.value;
@@ -92,16 +89,14 @@ function GeneralMedicine () {
       }
     }
     
-    const serverTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      console.log(`Server Timezone: ${serverTimezone}`);
     return (
       
          <div>
-           <button type="button" onClick={handleOnClick}>General Medicine</button>
-      {calendarData && 
+           
+      
         <form>
         <Calendar onChange={handleOnChange} value={value}  minDate={new Date()}/>
-        <Timepicker onChange={handleChangeOnTime} value={time} minTime="09:00:00" maxTime="17:00:00" />
+        <Timepicker onChange={setTime} value={time} minTime="09:00:00" maxTime="17:00:00" />
           <label htmlFor="GM">Please select a doctor:</label>
           <select id="GM" name="Doctor" onChange={handleDrFees}>
             <option>Please select a doctor</option>
@@ -118,7 +113,7 @@ function GeneralMedicine () {
           <span>₹</span>
         </form>
         
-      } 
+       
         </div>
       
         
