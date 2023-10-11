@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState,useEffect} from "react";
 import Cards from 'react-credit-cards-2';
 import 'react-credit-cards-2/dist/es/styles-compiled.css';
 //import {Razorpay} from "razorpay";
@@ -12,6 +12,14 @@ function Payment ({ propObject }) {
     name: '',
     focus: '',
   });
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = "https://checkout.razorpay.com/v1/razorpay.js";
+    document.head.appendChild(script);
+    return () => {
+      document.head.removeChild(script);
+    }
+  },[])
   const { email } = propObject;
   console.log(propObject)
   
