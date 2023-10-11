@@ -1,8 +1,8 @@
 import React, {useState} from "react";
 import Cards from 'react-credit-cards-2';
 import 'react-credit-cards-2/dist/es/styles-compiled.css';
-
-
+import {Razorpay} from "razorpay";
+//test
 
 function Payment ({ propObject }) {
   const [paymentDetails, setPaymentDetails] = useState({
