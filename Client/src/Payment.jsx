@@ -14,12 +14,16 @@ function Payment ({ propObject }) {
   });
   useEffect(() => {
     const script = document.createElement('script');
-    script.src = "https://checkout.razorpay.com/v1/razorpay.js";
-    document.head.appendChild(script);
-    return () => {
-      document.head.removeChild(script);
+    script.src= 'https://checkout.razorpay.com/v1/razorpay.js';
+    script.onload = () => {
+       razorpay = new Razorpay({
+        key: 'rzp_test_euDS0x6iBgKyk',
+        image: 'https://i.imgur.com/n5tjHFD.jpg',
+      });
     }
-  },[])
+    document.head.appendChild(script);
+  })
+  let razorpay;
   const { email } = propObject;
   console.log(propObject)
   
@@ -41,11 +45,7 @@ function Payment ({ propObject }) {
     const data = await fetch('http://localhost:1337/razorpay', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(propObject)}).then((t) =>
 			t.json()
 		)
-    const razorpay = new Razorpay({
-      key: 'rzp_test_euDS0x6iBgKyk',
-        // logo, displayed in the payment processing popup
-      image: 'https://i.imgur.com/n5tjHFD.jpg',
-    });
+    
     const expiryData = paymentDetails.expiry;
     const [expiryMonth, expiryYear] = expiryData.split('/');
     e.preventDefault();
