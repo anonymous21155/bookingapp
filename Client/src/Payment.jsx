@@ -1,4 +1,4 @@
-import React, {useState,useEffect} from "react";
+/*import React, {useState,useEffect} from "react";
 import Cards from 'react-credit-cards-2';
 import 'react-credit-cards-2/dist/es/styles-compiled.css';
 //import {Razorpay} from "razorpay";
@@ -122,4 +122,4 @@ function Payment ({ propObject }) {
     )
 }
 
-export default Payment;
+export default Payment;*/

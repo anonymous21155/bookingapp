@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 
-import Payment from "./Payment";
+//mport Payment from "./Payment";
 import MainComponent from "./MainComponent";
 import ServiceContext from "./ContextObject";
 import { Route, createBrowserRouter, createRoutesFromElements, RouterProvider } from "react-router-dom";
@@ -33,7 +33,7 @@ const mainObject = {
     </ServiceContext.Provider> 
     } />
    
-    <Route path="Payment" element={ <Payment propObject={propObject}/> } />
+    
     
     
   </Route>
