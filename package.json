@@ -34,8 +34,6 @@
       "not dead",
       "not op_mini all"
     ],
-    "homepage": "/Client",
-
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
