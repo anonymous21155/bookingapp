@@ -15,6 +15,9 @@ const razorpay = new Razorpay({
 app.use('/service', serviceRouter);
 app.use('/bookings', bookingRouter);
 app.use('/availability', availabilityRouter);
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+});
 app.post('/razorpay', async (req, res) => {
   let amount = "";
   console.log(req.body.service, req.body.doctor)
