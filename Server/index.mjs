@@ -8,6 +8,7 @@ import cors from 'cors';
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+const port = 1337;
 const razorpay = new Razorpay({
     key_id: 'rzp_test_euDS0x6iBgKyk5',
     key_secret: 'gULH7BA4ZbyySRhnTpuDeXxo',
@@ -54,7 +55,7 @@ app.post('/razorpay', async (req, res) => {
 
 
 
-app.listen(1337, () => {
+app.listen(port, () => {
   console.log('sever running on port 1337');
 })
 
