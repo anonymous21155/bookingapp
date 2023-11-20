@@ -8,7 +8,7 @@ import cors from 'cors';
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
-const port = 1337;
+const port = process.env.PORT;
 const razorpay = new Razorpay({
     key_id: 'rzp_test_euDS0x6iBgKyk5',
     key_secret: 'gULH7BA4ZbyySRhnTpuDeXxo',
